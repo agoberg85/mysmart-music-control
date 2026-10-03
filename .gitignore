@@ -1,0 +1,24 @@
+# --- Life OS safety defaults (2026-10-03) ---
+node_modules/
+venv/
+.venv/
+__pycache__/
+*.pyc
+.next/
+out/
+.godot/
+.env
+.env.*
+!.env.example
+*.har
+*.db
+*.sqlite
+*.sqlite3
+*.pem
+*.key
+.secret_key
+*.log
+logs/
+.DS_Store
+Thumbs.db
+desktop.ini
