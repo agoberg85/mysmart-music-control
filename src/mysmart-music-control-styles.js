@@ -305,6 +305,7 @@ export const cardStyles = css`
       .group-item-meta,
       .favorite-meta,
       .time-row,
+      .tablet-time,
       .volume-value {
         color: var(--mysmart-music-card-muted);
       }
@@ -400,7 +401,8 @@ export const cardStyles = css`
         gap: 6px;
       }
 
-      .time-row {
+      .time-row,
+      .tablet-time {
         font-size: 14px;
         font-weight: 500;
         opacity: 0.7;
@@ -1345,6 +1347,380 @@ export const cardStyles = css`
 
       .shell-compact .top-shell {
         gap: 12px;
+      }
+
+      /* Tablet (landscape) mode: persistent artwork column on the left, header + screen body on the right. */
+      .shell-tablet {
+        --mysmart-music-card-tablet-artwork-size: 268px;
+      }
+
+      .shell-tablet.has-fixed-height {
+        --mysmart-music-card-tablet-artwork-size: calc(var(--mysmart-music-card-height) - 44px);
+      }
+
+      .shell-tablet .content.has-fixed-height {
+        grid-template-rows: minmax(0, 1fr);
+      }
+
+      .tablet-layout {
+        display: grid;
+        grid-template-columns: var(--mysmart-music-card-tablet-artwork-size) minmax(0, 1fr);
+        gap: 30px;
+        min-height: var(--mysmart-music-card-tablet-artwork-size);
+      }
+
+      .tablet-layout.no-artwork {
+        grid-template-columns: minmax(0, 1fr);
+        min-height: 0;
+      }
+
+      .has-fixed-height .tablet-layout {
+        height: 100%;
+        min-height: 0;
+      }
+
+      .tablet-artwork {
+        width: var(--mysmart-music-card-tablet-artwork-size);
+        aspect-ratio: 1;
+        align-self: start;
+        border-radius: 24px;
+        background: var(--mysmart-music-card-button-surface);
+        background-size: cover;
+        background-position: center;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        --mdc-icon-size: 56px;
+      }
+
+      .tablet-artwork ha-icon {
+        color: var(--mysmart-music-card-muted);
+      }
+
+      .tablet-main {
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+        gap: 18px;
+        min-width: 0;
+        min-height: 0;
+      }
+
+      .tablet-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        min-width: 0;
+      }
+
+      .tablet-header-start {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        min-width: 0;
+      }
+
+      .shell-tablet .stream-pills {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+
+      .shell-tablet .stream-pills::-webkit-scrollbar {
+        display: none;
+      }
+
+      .shell-tablet .stream-pill {
+        flex: 0 0 auto;
+      }
+
+      .shell-tablet .screen-tabs {
+        flex: 0 0 auto;
+        flex-wrap: nowrap;
+        gap: 4px;
+      }
+
+      .shell-tablet .screen-tab {
+        flex: 1 1 0;
+        min-width: 96px;
+        white-space: nowrap;
+      }
+
+      .tablet-body {
+        min-height: 0;
+        min-width: 0;
+      }
+
+      .has-fixed-height .tablet-body {
+        overflow: auto;
+      }
+
+      .tablet-player {
+        height: 100%;
+        display: grid;
+        grid-template-rows: minmax(0, 1fr) auto;
+        gap: 20px;
+      }
+
+      .tablet-player-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 24px;
+        min-width: 0;
+      }
+
+      .tablet-meta {
+        display: grid;
+        gap: 4px;
+        min-width: 0;
+        padding-top: 4px;
+      }
+
+      .tablet-meta .track-title {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .tablet-meta .track-subtitle,
+      .tablet-meta .track-album {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+
+      .tablet-transport {
+        flex: 0 0 auto;
+        margin: 0;
+        gap: 12px;
+      }
+
+      .tablet-progress-row {
+        display: flex;
+        align-items: center;
+        gap: 28px;
+        min-width: 0;
+      }
+
+      .tablet-seek {
+        flex: 1 1 auto;
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 16px;
+        min-width: 0;
+      }
+
+      .tablet-time {
+        min-width: 36px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .tablet-seek .tablet-time:last-child {
+        text-align: right;
+      }
+
+      .tablet-volume {
+        flex: 0 1 260px;
+        min-width: 180px;
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .tablet-progress-row.no-seekbar .tablet-volume {
+        flex: 1 1 auto;
+      }
+
+      .tablet-mute-button {
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        border: 0;
+        border-radius: 999px;
+        background: transparent;
+        display: grid;
+        place-items: center;
+        color: var(--mysmart-music-card-muted);
+      }
+
+      .tablet-mute-button.is-muted {
+        color: var(--mysmart-music-card-accent);
+      }
+
+      .shell-tablet .grouping-panel {
+        height: 100%;
+        min-height: 0;
+        grid-template-rows: minmax(0, 1fr) auto;
+      }
+
+      .shell-tablet .group-list {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        align-content: start;
+        min-height: 0;
+        overflow: auto;
+      }
+
+      .shell-tablet .volumes-panel {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        align-content: start;
+        gap: 10px;
+      }
+
+      .shell-tablet .volumes-panel .volume-list {
+        display: contents;
+      }
+
+      .shell-tablet .volume-master,
+      .shell-tablet .volume-item {
+        padding: 16px 20px;
+      }
+
+      .shell-tablet .favorite-panel {
+        height: 100%;
+        min-height: 0;
+        align-content: start;
+        gap: 12px;
+      }
+
+      .shell-tablet .search-input {
+        padding-block: 7px;
+      }
+
+      /* With a fixed card height, tiles fill the height left under the toolbar and stay square,
+         so the whole artwork is visible instead of being clipped at the bottom. */
+      .shell-tablet.has-fixed-height .favorite-panel {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .shell-tablet.has-fixed-height .favorite-list-tiles {
+        display: flex;
+        flex: 1 1 auto;
+        min-height: 0;
+      }
+
+      .shell-tablet.has-fixed-height .favorite-item.favorite-item-tile {
+        flex: 0 0 auto;
+        width: auto;
+        height: 100%;
+        max-height: 180px;
+      }
+
+      .shell-tablet .favorite-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+      }
+
+      .search-field {
+        position: relative;
+        display: flex;
+        align-items: center;
+        flex: 0 1 290px;
+        min-width: 160px;
+      }
+
+      .search-field ha-icon {
+        position: absolute;
+        left: 14px;
+        color: var(--mysmart-music-card-muted);
+        pointer-events: none;
+        --mdc-icon-size: 20px;
+      }
+
+      .search-field .search-input {
+        padding-left: 44px;
+      }
+
+      .shell-tablet .favorite-toolbar-row {
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+
+      .shell-tablet .favorite-toolbar-row::-webkit-scrollbar {
+        display: none;
+      }
+
+      .shell-tablet .filter-pills {
+        flex-wrap: nowrap;
+      }
+
+      .shell-tablet .filter-pill {
+        flex: 0 0 auto;
+      }
+
+      .favorite-list-tiles {
+        grid-auto-flow: column;
+        grid-auto-columns: 148px;
+        gap: 12px;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        scroll-snap-type: x proximity;
+        scrollbar-width: none;
+      }
+
+      .favorite-list-tiles::-webkit-scrollbar {
+        display: none;
+      }
+
+      .favorite-item.favorite-item-tile {
+        position: relative;
+        display: block;
+        aspect-ratio: 1;
+        padding: 0;
+        border-radius: 20px;
+        overflow: hidden;
+        scroll-snap-align: start;
+      }
+
+      /* Tiles with artwork show only the cover; tiles without it center the type icon and name. */
+      .favorite-art.favorite-art-tile {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 0;
+        background: transparent;
+        --mdc-icon-size: 32px;
+      }
+
+      .favorite-item.favorite-item-tile:not(.has-artwork) {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px;
+        box-sizing: border-box;
+      }
+
+      .favorite-item-tile:not(.has-artwork) .favorite-art.favorite-art-tile {
+        position: static;
+        width: auto;
+        height: auto;
+        flex: 0 0 auto;
+        overflow: visible;
+      }
+
+      .favorite-copy-tile {
+        max-width: 100%;
+        text-align: center;
+      }
+
+      .favorite-copy-tile .favorite-name {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        overflow-wrap: anywhere;
+        font-weight: 600;
       }
 
       .custom-seek-slider.is-flat .custom-seek-wave-path {

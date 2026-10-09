@@ -5,6 +5,7 @@ import {
   DISPLAY_MODE_COMPACT,
   DISPLAY_MODE_FULL,
   DISPLAY_MODE_MINIMAL,
+  DISPLAY_MODE_TABLET,
   buildFavoriteLookupMap,
   buildFavoritesCacheKey,
   findFavoriteLookupMatch,
@@ -41,6 +42,7 @@ test('buildFavoritesCacheKey changes when favorite metadata changes', () => {
 test('getDisplayMode normalizes supported modes and falls back to full', () => {
   assert.equal(getDisplayMode({ display_mode: DISPLAY_MODE_COMPACT }), DISPLAY_MODE_COMPACT);
   assert.equal(getDisplayMode({ display_mode: DISPLAY_MODE_MINIMAL }), DISPLAY_MODE_MINIMAL);
+  assert.equal(getDisplayMode({ display_mode: 'Tablet' }), DISPLAY_MODE_TABLET);
   assert.equal(getDisplayMode({ display_mode: 'something-else' }), DISPLAY_MODE_FULL);
 });
 

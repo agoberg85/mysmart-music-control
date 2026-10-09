@@ -9,6 +9,7 @@ import {
 import { translateCardString } from './mysmart-music-control-i18n.js';
 
 const FAVORITE_VIEW_GRID = 'grid';
+const FAVORITE_VIEW_TILES = 'tiles';
 const FAVORITE_PLAYBACK_FEEDBACK_MS = 600;
 
 class MySmartMusicControlFavorites extends LitElement {
@@ -70,6 +71,16 @@ class MySmartMusicControlFavorites extends LitElement {
     const favorites = this._getVisibleFavorites();
     const playbackPending = Boolean(this._playingFavoriteId);
     const gridView = this.view === FAVORITE_VIEW_GRID;
+    const tileView = this.view === FAVORITE_VIEW_TILES;
+    const searchInput = html`
+      <input
+        class="search-input"
+        type="search"
+        placeholder=${this._t('search_favorites')}
+        .value=${this._favoriteSearch}
+        @input=${(event) => { this._favoriteSearch = event.target.value || ''; }}
+      />
+    `;
 
     return html`
       <div class="panel panel-tight favorite-panel">
@@ -84,13 +95,12 @@ class MySmartMusicControlFavorites extends LitElement {
             <ha-icon icon=${this._isFilterOpen ? 'mdi:close' : 'mdi:filter-variant'}></ha-icon>
             <span>${this._t('filter')}</span>
           </button>
-          <input
-            class="search-input"
-            type="search"
-            placeholder=${this._t('search_favorites')}
-            .value=${this._favoriteSearch}
-            @input=${(event) => { this._favoriteSearch = event.target.value || ''; }}
-          />
+          ${tileView ? html`
+            <label class="search-field">
+              <ha-icon icon="mdi:magnify" aria-hidden="true"></ha-icon>
+              ${searchInput}
+            </label>
+          ` : searchInput}
           <div class="favorite-toolbar-row">
             <div class="filter-pills">
               ${this._favoriteFilterOptions().map((option) => html`
@@ -118,17 +128,19 @@ class MySmartMusicControlFavorites extends LitElement {
             <div>${this._t('no_favorites_match')}</div>
           </div>
         ` : html`
-          <div class="favorite-list ${gridView ? 'favorite-list-grid' : ''}">
+          <div class="favorite-list ${gridView ? 'favorite-list-grid' : ''} ${tileView ? 'favorite-list-tiles' : ''}">
             ${favorites.map((favorite) => {
               const isStarting = favorite.mediaId === this._playingFavoriteId;
+              const hasArtwork = Boolean(favorite.image && !this._imageFailures[favorite.mediaId]);
               return html`
                 <button
-                  class="favorite-item ${gridView ? 'favorite-item-grid' : ''} ${isStarting ? 'is-starting' : ''}"
+                  class="favorite-item ${gridView ? 'favorite-item-grid' : ''} ${tileView ? 'favorite-item-tile' : ''} ${tileView && hasArtwork ? 'has-artwork' : ''} ${isStarting ? 'is-starting' : ''}"
+                  aria-label=${tileView ? favorite.name : nothing}
                   aria-busy=${isStarting ? 'true' : 'false'}
                   ?disabled=${playbackPending}
                   @click=${() => this._playFavorite(favorite)}
                 >
-                  <div class="favorite-art ${favorite.image && !this._imageFailures[favorite.mediaId] ? 'has-artwork' : ''} ${gridView ? 'favorite-art-grid' : ''}">
+                  <div class="favorite-art ${hasArtwork ? 'has-artwork' : ''} ${gridView ? 'favorite-art-grid' : ''} ${tileView ? 'favorite-art-tile' : ''}">
                     ${favorite.image && !this._imageFailures[favorite.mediaId] ? html`
                       ${this._shouldLoadImage(favorite.mediaId) ? html`
                         <img
@@ -152,13 +164,18 @@ class MySmartMusicControlFavorites extends LitElement {
                       </span>
                     ` : nothing}
                   </div>
-                  ${gridView ? nothing : html`
+                  ${tileView && !hasArtwork ? html`
+                    <div class="favorite-copy favorite-copy-tile" aria-hidden="true">
+                      <div class="favorite-name">${favorite.name}</div>
+                    </div>
+                  ` : nothing}
+                  ${gridView || tileView ? nothing : html`
                     <div class="favorite-copy">
                       <div class="favorite-name">${favorite.name}</div>
                       <div class="favorite-meta">${favorite.typeLabel}</div>
                     </div>
                   `}
-                  ${gridView ? nothing : html`<ha-icon class="favorite-chevron" icon="mdi:play-circle"></ha-icon>`}
+                  ${gridView || tileView ? nothing : html`<ha-icon class="favorite-chevron" icon="mdi:play-circle"></ha-icon>`}
                 </button>
               `;
             })}

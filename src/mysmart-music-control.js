@@ -6,6 +6,7 @@ import {
   DISPLAY_MODE_COMPACT,
   DISPLAY_MODE_FULL,
   DISPLAY_MODE_MINIMAL,
+  DISPLAY_MODE_TABLET,
   buildFavoritesCacheKey,
   computeProportionalGroupVolumes,
   favoriteTypeLabel,
@@ -31,6 +32,7 @@ const SCREEN_VOLUMES = 'volumes';
 const REPEAT_MODES = ['off', 'all', 'one'];
 const UPDATE_INTERVAL_MS = 1000;
 const FAVORITE_VIEW_LIST = 'list';
+const FAVORITE_VIEW_TILES = 'tiles';
 const SEEK_WAVE_WIDTH = 480;
 const SEEK_WAVE_HEIGHT = 24;
 const SEEK_WAVE_LENGTH = 32;
@@ -145,7 +147,7 @@ class MySmartMusicControl extends LitElement {
     const stateObj = activeStream?.stateObj;
     return shouldRunProgressClock({
       isConnected: this.isConnected,
-      playerVisible: this._getDisplayMode() === DISPLAY_MODE_FULL && this._screen === SCREEN_PLAYER,
+      playerVisible: [DISPLAY_MODE_FULL, DISPLAY_MODE_TABLET].includes(this._getDisplayMode()) && this._screen === SCREEN_PLAYER,
       seekbarVisible: this.config?.show_seekbar !== false,
       mediaState: stateObj?.state,
       mediaDuration: stateObj?.attributes?.media_duration,
@@ -302,6 +304,8 @@ class MySmartMusicControl extends LitElement {
         <div class="content ${this._hasFixedHeight(displayMode) ? 'has-fixed-height' : ''} ${displayMode === DISPLAY_MODE_MINIMAL ? 'content-minimal' : ''}">
           ${displayMode === DISPLAY_MODE_MINIMAL
             ? this._renderMinimalMode(activeState, activeStream)
+            : displayMode === DISPLAY_MODE_TABLET
+            ? this._renderTabletMode(streams, activeState, activeStream, headerTitle, favorites, hasFavorites)
             : html`
               <div class="top-shell ${this._hasFixedHeight(displayMode) ? 'top-shell-fixed' : ''}">
                 ${displayMode === DISPLAY_MODE_COMPACT
@@ -587,6 +591,155 @@ class MySmartMusicControl extends LitElement {
     return this._renderMinimalPlayer(activeState, activeStream);
   }
 
+  _renderTabletMode(streams, activeState, activeStream, headerTitle, favorites, hasFavorites) {
+    const showStreamSelector = streams.length > 1 || this.config?.always_show_stream_selector === true;
+    const showArtwork = this.config?.show_artwork !== false;
+    const artwork = activeState ? this._getArtworkUrl(activeState) : '';
+
+    return html`
+      <div class="tablet-layout ${showArtwork ? '' : 'no-artwork'}">
+        ${showArtwork ? html`
+          <div class="tablet-artwork ${artwork ? 'has-artwork' : ''}" style=${artwork ? `background-image:url("${artwork}")` : ''}>
+            ${!artwork ? html`<ha-icon icon="mdi:album"></ha-icon>` : nothing}
+          </div>
+        ` : nothing}
+
+        <div class="tablet-main">
+          <div class="tablet-header">
+            <div class="tablet-header-start">
+              ${headerTitle ? html`<div class="title">${headerTitle}</div>` : nothing}
+              ${showStreamSelector ? this._renderStreamPills(streams, activeStream) : nothing}
+            </div>
+            ${this._renderScreenTabs(hasFavorites)}
+          </div>
+          <div class="body-shell tablet-body">
+            ${this._renderTabletBody(activeState, activeStream, favorites, hasFavorites)}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  _renderTabletBody(activeState, activeStream, favorites, hasFavorites) {
+    if (!activeState || !activeStream) {
+      return html`
+        <div class="empty-state small">
+          <ha-icon icon="mdi:speaker-off"></ha-icon>
+          <div>${this._t('no_speakers')}</div>
+        </div>
+      `;
+    }
+
+    if (this._screen === SCREEN_GROUPING) {
+      return this._renderGrouping(activeStream);
+    }
+
+    if (this._screen === SCREEN_VOLUMES) {
+      return this._renderVolumes(activeStream);
+    }
+
+    if (this._screen === SCREEN_FAVORITES && hasFavorites) {
+      return this._renderFavorites(activeStream, favorites, FAVORITE_VIEW_TILES);
+    }
+
+    return this._renderTabletPlayer(activeState, activeStream);
+  }
+
+  _renderTabletPlayer(stateObj, activeStream) {
+    const model = this._getPlayerViewModel(stateObj, activeStream);
+    const showSeekbar = this.config?.show_seekbar !== false;
+    const showVolume = this.config?.show_volume !== false;
+    const isMuted = stateObj.attributes.is_volume_muted === true;
+    const volumeKey = `player:${activeStream.coordinator}`;
+    const displayedVolume = this._getDisplayedVolume(volumeKey, model.volume);
+
+    return html`
+      <div class="tablet-player">
+        <div class="tablet-player-top">
+          <div class="tablet-meta">
+            ${this.config?.show_title !== false ? html`<div class="track-title">${model.title}</div>` : nothing}
+            ${model.artist ? html`<div class="track-subtitle">${model.artist}</div>` : nothing}
+            ${this.config?.show_album_title !== false && model.album ? html`<div class="track-album">${model.album}</div>` : nothing}
+          </div>
+          <div class="transport-row tablet-transport">
+            ${this._renderTransportButtons(model, activeStream)}
+          </div>
+        </div>
+
+        ${showSeekbar || showVolume ? html`
+          <div class="tablet-progress-row ${showSeekbar ? '' : 'no-seekbar'}">
+            ${showSeekbar ? html`
+              <div class="tablet-seek">
+                <span class="tablet-time">${this._formatTime(model.displayedPosition)}</span>
+                ${this._renderSeekSlider({
+                  key: `seek:${activeStream.coordinator}`,
+                  value: model.displayedPosition,
+                  duration: model.duration,
+                  label: this._t('seek_position'),
+                  descriptor: { entityId: activeStream.coordinator, currentValue: model.currentPosition, duration: model.duration },
+                  animate: model.isPlaying && !this._activeSeekDrag,
+                  flatten: !model.isPlaying && !this._activeSeekDrag,
+                })}
+                <span class="tablet-time">${this._formatTime(model.duration)}</span>
+              </div>
+            ` : nothing}
+            ${showVolume ? html`
+              <div class="tablet-volume">
+                <button
+                  class="tablet-mute-button ${isMuted ? 'is-muted' : ''}"
+                  title=${isMuted ? this._t('unmute') : this._t('mute')}
+                  aria-label=${isMuted ? this._t('unmute') : this._t('mute')}
+                  aria-pressed=${isMuted ? 'true' : 'false'}
+                  @click=${() => this._callService('media_player', 'volume_mute', { entity_id: activeStream.coordinator, is_volume_muted: !isMuted })}
+                >
+                  <ha-icon icon=${this._volumeIcon(displayedVolume, isMuted)}></ha-icon>
+                </button>
+                ${this._renderVolumeSlider({
+                  key: volumeKey,
+                  value: displayedVolume,
+                  label: this._t('player_volume'),
+                  descriptor: { type: 'player', entityId: activeStream.coordinator, currentValue: model.volume },
+                })}
+                <span class="volume-value">${displayedVolume}%</span>
+              </div>
+            ` : nothing}
+          </div>
+        ` : nothing}
+      </div>
+    `;
+  }
+
+  _volumeIcon(volume, isMuted) {
+    if (isMuted || volume <= 0) {
+      return 'mdi:volume-off';
+    }
+
+    if (volume < 34) {
+      return 'mdi:volume-low';
+    }
+
+    return volume < 67 ? 'mdi:volume-medium' : 'mdi:volume-high';
+  }
+
+  _renderTransportButtons(model, activeStream) {
+    return html`
+      <button class="icon-button ${model.shuffle ? 'active' : ''}" @click=${() => this._setShuffle(activeStream.coordinator, !model.shuffle)}>
+        <ha-icon icon="mdi:shuffle-variant"></ha-icon>
+      </button>
+      <button class="icon-button" @click=${() => this._callService('media_player', 'media_previous_track', { entity_id: activeStream.coordinator })}>
+        <ha-icon icon="mdi:skip-previous"></ha-icon>
+      </button>
+      <button class="play-button" @click=${() => this._callService('media_player', 'media_play_pause', { entity_id: activeStream.coordinator })}>
+        <ha-icon icon=${model.isPlaying ? 'mdi:pause' : 'mdi:play'}></ha-icon>
+      </button>
+      <button class="icon-button" @click=${() => this._callService('media_player', 'media_next_track', { entity_id: activeStream.coordinator })}>
+        <ha-icon icon="mdi:skip-next"></ha-icon>
+      </button>
+      <button class="icon-button ${model.repeat !== 'off' ? 'active' : ''}" @click=${() => this._cycleRepeat(activeStream.coordinator, model.repeat)}>
+        <ha-icon icon=${model.repeat === 'one' ? 'mdi:repeat-once' : 'mdi:repeat'}></ha-icon>
+      </button>
+    `;
+  }
 
   _getPlayerViewModel(stateObj, activeStream) {
     const title = stateObj.attributes.media_title
@@ -665,21 +818,7 @@ class MySmartMusicControl extends LitElement {
         ` : nothing}
 
         <div class="transport-row">
-          <button class="icon-button ${model.shuffle ? 'active' : ''}" @click=${() => this._setShuffle(activeStream.coordinator, !model.shuffle)}>
-            <ha-icon icon="mdi:shuffle-variant"></ha-icon>
-          </button>
-          <button class="icon-button" @click=${() => this._callService('media_player', 'media_previous_track', { entity_id: activeStream.coordinator })}>
-            <ha-icon icon="mdi:skip-previous"></ha-icon>
-          </button>
-          <button class="play-button" @click=${() => this._callService('media_player', 'media_play_pause', { entity_id: activeStream.coordinator })}>
-            <ha-icon icon=${model.isPlaying ? 'mdi:pause' : 'mdi:play'}></ha-icon>
-          </button>
-          <button class="icon-button" @click=${() => this._callService('media_player', 'media_next_track', { entity_id: activeStream.coordinator })}>
-            <ha-icon icon="mdi:skip-next"></ha-icon>
-          </button>
-          <button class="icon-button ${model.repeat !== 'off' ? 'active' : ''}" @click=${() => this._cycleRepeat(activeStream.coordinator, model.repeat)}>
-            <ha-icon icon=${model.repeat === 'one' ? 'mdi:repeat-once' : 'mdi:repeat'}></ha-icon>
-          </button>
+          ${this._renderTransportButtons(model, activeStream)}
         </div>
 
         ${this.config?.show_volume !== false ? html`
@@ -711,21 +850,7 @@ class MySmartMusicControl extends LitElement {
           ${model.artist ? html`<div class="compact-subtitle">${model.artist}</div>` : nothing}
         </div>
         <div class="compact-transport transport-row">
-          <button class="icon-button ${model.shuffle ? 'active' : ''}" @click=${() => this._setShuffle(activeStream.coordinator, !model.shuffle)}>
-            <ha-icon icon="mdi:shuffle-variant"></ha-icon>
-          </button>
-          <button class="icon-button" @click=${() => this._callService('media_player', 'media_previous_track', { entity_id: activeStream.coordinator })}>
-            <ha-icon icon="mdi:skip-previous"></ha-icon>
-          </button>
-          <button class="play-button" @click=${() => this._callService('media_player', 'media_play_pause', { entity_id: activeStream.coordinator })}>
-            <ha-icon icon=${model.isPlaying ? 'mdi:pause' : 'mdi:play'}></ha-icon>
-          </button>
-          <button class="icon-button" @click=${() => this._callService('media_player', 'media_next_track', { entity_id: activeStream.coordinator })}>
-            <ha-icon icon="mdi:skip-next"></ha-icon>
-          </button>
-          <button class="icon-button ${model.repeat !== 'off' ? 'active' : ''}" @click=${() => this._cycleRepeat(activeStream.coordinator, model.repeat)}>
-            <ha-icon icon=${model.repeat === 'one' ? 'mdi:repeat-once' : 'mdi:repeat'}></ha-icon>
-          </button>
+          ${this._renderTransportButtons(model, activeStream)}
         </div>
       </div>
     `;
@@ -837,7 +962,7 @@ class MySmartMusicControl extends LitElement {
       : 0;
 
     return html`
-      <div class="panel panel-tight">
+      <div class="panel panel-tight volumes-panel">
         <div class="volume-master">
           <div class="group-item-name">${this._t('overall')}</div>
           <div class="volume-slider-row">
@@ -881,13 +1006,13 @@ class MySmartMusicControl extends LitElement {
     `;
   }
 
-  _renderFavorites(activeStream, favorites) {
+  _renderFavorites(activeStream, favorites, view = this.config?.browse_view || FAVORITE_VIEW_LIST) {
     return html`
       <mysmart-music-control-favorites
         .hass=${this.hass}
         .activeStream=${activeStream}
         .favorites=${favorites}
-        .view=${this.config?.browse_view || FAVORITE_VIEW_LIST}
+        .view=${view}
         @favorite-played=${() => { this._screen = SCREEN_PLAYER; }}
       ></mysmart-music-control-favorites>
     `;

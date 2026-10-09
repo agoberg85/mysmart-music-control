@@ -25,6 +25,21 @@ favorites_entity: sensor.sonos_favorites
 title: Home Audio
 ```
 
+### Tablet (landscape) layout
+
+Set `display_mode: tablet` for a wide layout aimed at wall-mounted landscape tablets: the artwork stays pinned on the left while stream tabs and the Player / Grouping / Volumes / Browse switcher share a single header row. The player puts title and transport side by side with the seekbar and volume on one bottom row, grouping and volumes use multi-column grids, and Browse shows favorites as a horizontally scrolling row of tiles.
+
+```yaml
+type: custom:mysmart-music-control
+display_mode: tablet
+entities:
+  - media_player.stue
+  - media_player.kjokken
+  - media_player.lekerom
+```
+
+Setting `height` scales the artwork to fill the card height.
+
 ## Notes
 
 - `entities` should contain the Sonos speakers you want the card to manage.

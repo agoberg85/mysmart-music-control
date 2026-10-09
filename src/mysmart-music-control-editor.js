@@ -4,6 +4,7 @@ import {
   DISPLAY_MODE_COMPACT,
   DISPLAY_MODE_FULL,
   DISPLAY_MODE_MINIMAL,
+  DISPLAY_MODE_TABLET,
 } from './mysmart-music-control-helpers.js';
 import { translateCardString } from './mysmart-music-control-i18n.js';
 
@@ -142,6 +143,7 @@ class MySmartMusicControlEditor extends LitElement {
                 { value: DISPLAY_MODE_FULL, label: this._t('display_mode_full') },
                 { value: DISPLAY_MODE_COMPACT, label: this._t('display_mode_compact') },
                 { value: DISPLAY_MODE_MINIMAL, label: this._t('display_mode_minimal') },
+                { value: DISPLAY_MODE_TABLET, label: this._t('display_mode_tablet') },
               ],
             },
           }}

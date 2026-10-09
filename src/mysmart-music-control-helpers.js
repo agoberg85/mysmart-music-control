@@ -6,6 +6,7 @@ export const FAVORITE_FILTER_RADIO = 'radio';
 export const DISPLAY_MODE_FULL = 'full';
 export const DISPLAY_MODE_COMPACT = 'compact';
 export const DISPLAY_MODE_MINIMAL = 'minimal';
+export const DISPLAY_MODE_TABLET = 'tablet';
 
 export function favoriteLookupKeyFor(value) {
   return String(value || '')
@@ -246,7 +247,7 @@ export function shouldRunProgressClock({
 
 export function getDisplayMode(config) {
   const mode = String(config?.display_mode || DISPLAY_MODE_FULL).toLowerCase();
-  if ([DISPLAY_MODE_FULL, DISPLAY_MODE_COMPACT, DISPLAY_MODE_MINIMAL].includes(mode)) {
+  if ([DISPLAY_MODE_FULL, DISPLAY_MODE_COMPACT, DISPLAY_MODE_MINIMAL, DISPLAY_MODE_TABLET].includes(mode)) {
     return mode;
   }
 
