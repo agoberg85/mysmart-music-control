@@ -2,6 +2,12 @@
 
 A Sonos-focused Home Assistant dashboard card with a cleaner player UI, stream pills, grouping controls, per-speaker volumes, and a favorites browser.
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/agoberg85/mysmart-music-control/main/images/player.png" alt="Player view with artwork and the wavy seek bar" width="32%">
+  <img src="https://raw.githubusercontent.com/agoberg85/mysmart-music-control/main/images/grouping.png" alt="Grouping view with a checkbox per speaker" width="32%">
+  <img src="https://raw.githubusercontent.com/agoberg85/mysmart-music-control/main/images/browse.png" alt="Browse view with search, filters and favorites grid" width="32%">
+</p>
+
 ## Features
 
 - Multiple Sonos entities in one card
