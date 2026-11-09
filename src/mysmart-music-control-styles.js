@@ -1464,7 +1464,7 @@ export const cardStyles = css`
 
       .tablet-player-top {
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         justify-content: space-between;
         gap: 24px;
         min-width: 0;
@@ -1474,7 +1474,6 @@ export const cardStyles = css`
         display: grid;
         gap: 4px;
         min-width: 0;
-        padding-top: 4px;
       }
 
       .tablet-meta .track-title {
