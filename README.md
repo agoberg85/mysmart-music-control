@@ -13,6 +13,29 @@ A Sonos-focused Home Assistant dashboard card with a cleaner player UI, stream p
 - Album favorites automatically turn shuffle off before playback starts
 - Artwork-first player layout with transport, seek, shuffle, repeat, and volume controls
 
+## Installation
+
+### HACS
+
+1. Open HACS in Home Assistant.
+2. Click the three dots in the upper right corner and choose **Custom repositories**.
+3. Paste `https://github.com/agoberg85/mysmart-music-control` into the repository field, select **Dashboard** as the type, and click **Add**.
+4. Search for **MySmart Music Control** in HACS, open it, and click **Download**.
+5. Reload your browser when HACS asks you to.
+
+On Home Assistant 2026.11 and later, HACS is replaced by the built-in Marketplace. Go to **Settings > Marketplace**, choose **Add from link**, and paste the same URL. This requires a connected GitHub account.
+
+### Manual
+
+1. Download `mysmart-music-control.js` from the [latest release](https://github.com/agoberg85/mysmart-music-control/releases/latest) and copy it to `config/www/`.
+2. Go to **Settings > Dashboards**, open the three dots menu, and choose **Resources**.
+3. Add `/local/mysmart-music-control.js` as a **JavaScript module**.
+4. Reload your browser.
+
+### Favorites sensor
+
+The Browse tab needs the Sonos favorites sensor, which you may have to enable first. Go to **Settings > Devices & services > Entities**, search for **Sonos favorites**, open its settings, and turn on **Enabled**.
+
 ## Configuration
 
 ```yaml
