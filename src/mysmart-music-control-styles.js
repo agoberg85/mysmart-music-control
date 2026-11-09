@@ -1,6 +1,7 @@
 import { css } from 'lit';
 
 const SEEK_WAVE_STROKE = 3;
+export const SEEK_WAVE_LENGTH = 32;
 
 export const cardStyles = css`
       mysmart-music-control-favorites {
@@ -444,9 +445,13 @@ export const cardStyles = css`
         color: rgba(255, 255, 255, 0.92);
       }
 
+      /* The animation stays defined at all times and is only paused. Removing it when the
+         player briefly leaves "playing", for example between tracks, snaps the wave back
+         to its start position. */
       .custom-seek-wave-svg {
         display: block;
         max-width: none;
+        animation: seek-wave-slide 1s linear infinite;
       }
 
       .custom-seek-wave-path {
@@ -455,10 +460,7 @@ export const cardStyles = css`
         stroke-width: ${SEEK_WAVE_STROKE};
         stroke-linecap: round;
         stroke-linejoin: round;
-      }
-
-      .custom-seek-slider.is-animated .custom-seek-wave-svg {
-        animation: seek-wave-slide 15s linear infinite;
+        transition: d 180ms ease;
       }
 
       .custom-seek-slider.is-dragging .custom-seek-wave-svg,
@@ -493,7 +495,7 @@ export const cardStyles = css`
         }
 
         to {
-          transform: translateX(-50%);
+          transform: translateX(-${SEEK_WAVE_LENGTH}px);
         }
       }
 
@@ -1722,13 +1724,9 @@ export const cardStyles = css`
         font-weight: 600;
       }
 
-      .custom-seek-slider.is-flat .custom-seek-wave-path {
-        transition: d 180ms ease;
-      }
-
       @media (prefers-reduced-motion: reduce) {
         .stream-pill-bars span,
-        .custom-seek-slider.is-animated .custom-seek-wave-svg,
+        .custom-seek-wave-svg,
         .favorite-item.is-starting .favorite-art,
         .favorite-loading-indicator ha-icon {
           animation: none;

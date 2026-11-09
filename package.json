@@ -1,6 +1,6 @@
 {
   "name": "mysmart-music-control",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A polished Sonos-focused Home Assistant music control card with stream tabs, grouping, and favorites.",
   "main": "mysmart-music-control.js",
   "type": "module",

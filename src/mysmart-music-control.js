@@ -21,7 +21,7 @@ import {
 } from './mysmart-music-control-helpers.js';
 import { translateCardString } from './mysmart-music-control-i18n.js';
 import { performCardAction } from './mysmart-music-control-actions.js';
-import { cardStyles } from './mysmart-music-control-styles.js';
+import { cardStyles, SEEK_WAVE_LENGTH } from './mysmart-music-control-styles.js';
 import { loadFavoriteData } from './mysmart-music-control-favorites-repository.js';
 
 const SCREEN_PLAYER = 'player';
@@ -35,7 +35,6 @@ const FAVORITE_VIEW_LIST = 'list';
 const FAVORITE_VIEW_TILES = 'tiles';
 const SEEK_WAVE_WIDTH = 480;
 const SEEK_WAVE_HEIGHT = 24;
-const SEEK_WAVE_LENGTH = 32;
 const SEEK_WAVE_AMPLITUDE = 5;
 const SEEK_COMMIT_HOLD_MS = 1800;
 
@@ -113,10 +112,8 @@ class MySmartMusicControl extends LitElement {
   }
 
   _growSeekWaveSpan(measuredWidth) {
-    // The wave pattern tiles two copies side by side and animates by translating one
-    // copy-width, so it only stays seamless if a single copy is at least as wide as the
-    // visible track. Grow (never shrink, to avoid churn) to a multiple of the wave length
-    // so the tiling stays phase-aligned.
+    // The drawn wave must be at least as wide as the visible track. Grow (never shrink, to
+    // avoid churn) to a multiple of the wave length so the wave ends on a whole period.
     const required = Math.ceil(Math.max(measuredWidth, SEEK_WAVE_WIDTH) / SEEK_WAVE_LENGTH) * SEEK_WAVE_LENGTH;
     if (required > this._seekWaveSpan) {
       this._seekWaveSpan = required;
@@ -1492,29 +1489,21 @@ class MySmartMusicControl extends LitElement {
   }
 
   _renderSeekWaveSvg(flatten = false) {
-    // The wave is drawn as two identical copies placed side by side (span + span), and the
-    // whole SVG slides left by exactly one span (translateX(-50%)) on a loop. Because the
-    // wave repeats every SEEK_WAVE_LENGTH px, sliding by a whole multiple of that period looks
-    // seamless — but only as long as `span` covers the widest the track can actually render at,
-    // otherwise the trailing edge (nearest the handle) runs out of drawn wave mid-loop and pops
-    // back to the start. `span` is grown to match the measured track width in
-    // _growSeekWaveSpan, so this always holds regardless of card width.
+    // The SVG slides left by exactly one wavelength on a loop, so the start and end of each
+    // loop look identical. It is drawn one wavelength wider than the track (`span` is grown to
+    // the measured track width in _growSeekWaveSpan), so the visible part is always covered.
     const span = this._seekWaveSpan || SEEK_WAVE_WIDTH;
-    const wavePath = this._buildSeekWavePath(span, flatten ? 0 : SEEK_WAVE_AMPLITUDE);
+    const width = span + SEEK_WAVE_LENGTH;
+    const wavePath = this._buildSeekWavePath(width, flatten ? 0 : SEEK_WAVE_AMPLITUDE);
 
     return html`
       <svg
         class="custom-seek-wave-svg"
-        viewBox=${`0 0 ${span * 2} ${SEEK_WAVE_HEIGHT}`}
-        style=${`width:${span * 2}px;height:${SEEK_WAVE_HEIGHT}px;`}
+        viewBox=${`0 0 ${width} ${SEEK_WAVE_HEIGHT}`}
+        style=${`width:${width}px;height:${SEEK_WAVE_HEIGHT}px;`}
         preserveAspectRatio="xMinYMid slice"
         aria-hidden="true"
       >
-        <path
-          class="custom-seek-wave-path"
-          d=${wavePath}
-          transform=${`translate(${span} 0)`}
-        ></path>
         <path class="custom-seek-wave-path" d=${wavePath}></path>
       </svg>
     `;
