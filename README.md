@@ -79,3 +79,11 @@ If you set a `height`, the artwork scales to fill it.
 - `favorites_entity` should point at a sensor with your Sonos favorites in its `items` attribute. In Home Assistant that's usually `sensor.sonos_favorites`.
 - The card reads the streams from your Sonos groups, so if you group or split speakers somewhere else, the pills update on their own.
 - The artwork for favorites comes from the image fields on your favorites sensor. If your sensor doesn't have cover URLs, the card shows an icon for the type of favorite instead, for now.
+
+## Use of AI
+
+I made this card with AI. I decided what it should do and designed how it should look in Figma, and I used Claude to write the code from those sketches. That's why it's credited in the commit history.
+
+I know not everyone in the Home Assistant community is comfortable with AI-written code, and that's fair. If it's a dealbreaker for you, I completely understand.
+
+This is the card I use at home, on my own Sonos speakers, on my main dashboard and on my wall tablet, so I notice when something doesn't work. If you run into a bug, please open an issue.
