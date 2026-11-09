@@ -1,6 +1,8 @@
 # MySmart Music Control
 
-A Sonos-focused Home Assistant dashboard card with a cleaner player UI, stream pills, grouping controls, per-speaker volumes, and a favorites browser.
+A dashboard card for controlling Sonos speakers in Home Assistant. You can group speakers, set the volume per speaker and browse your favorites, all from one card.
+
+I made it because I wanted something custom that fits my dashboard design and layout. Grouping was also really important for me. I want to be able to walk from the living room to the kitchen, and the music is just there.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/agoberg85/mysmart-music-control/main/images/player.png" alt="Player view with artwork and the wavy seek bar" width="32%">
@@ -10,14 +12,14 @@ A Sonos-focused Home Assistant dashboard card with a cleaner player UI, stream p
 
 ## Features
 
-- Multiple Sonos entities in one card
-- Stream pills that automatically reflect your active Sonos groups
-- Group and ungroup workflow built around checkboxes plus an apply button
-- Dedicated Volumes tab with one overall slider and one slider per grouped speaker
-- Favorites browser powered by a Sonos favorites sensor
-- Favorite search and filter pills for albums, playlists, and radio
-- Album favorites automatically turn shuffle off before playback starts
-- Artwork-first player layout with transport, seek, shuffle, repeat, and volume controls
+- All your Sonos speakers in one card
+- Stream pills at the top that follow your active Sonos groups
+- Grouping with checkboxes. Nothing changes until you press apply, and you can ungroup from the same place
+- A Volumes tab with one overall slider and one slider for each speaker in the group
+- A favorites browser that gets its list from the Sonos favorites sensor
+- Search your favorites, or filter by albums, playlists or radio
+- Starting an album turns shuffle off first, because albums should be played in order
+- The artwork gets most of the space in the player, with seek, play controls, shuffle, repeat and volume around it
 
 ## Installation
 
@@ -29,7 +31,7 @@ A Sonos-focused Home Assistant dashboard card with a cleaner player UI, stream p
 4. Search for **MySmart Music Control** in HACS, open it, and click **Download**.
 5. Reload your browser when HACS asks you to.
 
-On Home Assistant 2026.11 and later, HACS is replaced by the built-in Marketplace. Go to **Settings > Marketplace**, choose **Add from link**, and paste the same URL. This requires a connected GitHub account.
+On Home Assistant 2026.11 and later, the built-in Marketplace replaces HACS. Go to **Settings > Marketplace**, choose **Add from link**, and paste the same URL. You need a connected GitHub account for this.
 
 ### Manual
 
@@ -40,7 +42,7 @@ On Home Assistant 2026.11 and later, HACS is replaced by the built-in Marketplac
 
 ### Favorites sensor
 
-The Browse tab needs the Sonos favorites sensor, which you may have to enable first. Go to **Settings > Devices & services > Entities**, search for **Sonos favorites**, open its settings, and turn on **Enabled**.
+The Browse tab needs the Sonos favorites sensor, and you may have to enable it first. I had to enable mine manually. Go to **Settings > Devices & services > Entities**, search for **Sonos favorites**, open its settings, and turn on **Enabled**.
 
 ## Configuration
 
@@ -56,7 +58,9 @@ title: Home Audio
 
 ### Tablet (landscape) layout
 
-Set `display_mode: tablet` for a wide layout aimed at wall-mounted landscape tablets: the artwork stays pinned on the left while stream tabs and the Player / Grouping / Volumes / Browse switcher share a single header row. The player puts title and transport side by side with the seekbar and volume on one bottom row, grouping and volumes use multi-column grids, and Browse shows favorites as a horizontally scrolling row of tiles.
+Set `display_mode: tablet` if you have a tablet on the wall in landscape. To be honest, it's pretty much built around my own tablet, so it might need some tweaking on yours.
+
+The artwork stays on the left, and the stream tabs share one header row with Player, Grouping, Volumes and Browse. In the player, the title and controls sit side by side, with the seekbar and volume in a row at the bottom. Grouping and Volumes use several columns, and Browse shows your favorites as a row of tiles you scroll sideways.
 
 ```yaml
 type: custom:mysmart-music-control
@@ -67,11 +71,11 @@ entities:
   - media_player.lekerom
 ```
 
-Setting `height` scales the artwork to fill the card height.
+If you set a `height`, the artwork scales to fill it.
 
 ## Notes
 
-- `entities` should contain the Sonos speakers you want the card to manage.
-- `favorites_entity` should point at a sensor whose `items` attribute contains Sonos favorites. In Home Assistant this is commonly `sensor.sonos_favorites`.
-- The card derives streams from current Sonos grouping state, so if you split or join speakers elsewhere, the pills update automatically.
-- Favorite artwork depends on the image fields exposed by your favorites sensor. If your sensor does not include cover URLs, the card falls back to type-based icons for now.
+- Put the Sonos speakers you want to control in `entities`.
+- `favorites_entity` should point at a sensor with your Sonos favorites in its `items` attribute. In Home Assistant that's usually `sensor.sonos_favorites`.
+- The card reads the streams from your Sonos groups, so if you group or split speakers somewhere else, the pills update on their own.
+- The artwork for favorites comes from the image fields on your favorites sensor. If your sensor doesn't have cover URLs, the card shows an icon for the type of favorite instead, for now.
